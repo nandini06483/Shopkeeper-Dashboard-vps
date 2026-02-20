@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyapar Setu - Shopkeeper Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login/Signup Page -->
+    <div id="authPage" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1><i class="fas fa-store"></i> Vyapar Setu</h1>
+                <p>Your Business Bridge to Digital Success</p>
+            </div>
+            
+            <form id="authForm">
+                <div id="loginSection">
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="tel" id="mobileNumber" class="form-control" placeholder="Enter your mobile number" required>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="sendOTP()">
+                        <i class="fas fa-paper-plane"></i> Send OTP
+                    </button>
+                </div>
+                
+                <div id="otpSection" style="display: none;">
+                    <div class="form-group">
+                        <label>Enter OTP</label>
+                        <div class="otp-inputs">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 0)">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 1)">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 2)">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 3)">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 4)">
+                            <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 5)">
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="verifyOTP()">
+                        <i class="fas fa-check-circle"></i> Verify & Continue
+                    </button>
+                </div>
+                
+                <div id="shopDetailsSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="shopkeeperName">Shopkeeper Name</label>
+                        <input type="text" id="shopkeeperName" class="form-control" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shopName">Shop Name</label>
+                        <input type="text" id="shopName" class="form-control" placeholder="Enter shop name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shopLocation">Location</label>
+                        <input type="text" id="shopLocation" class="form-control" placeholder="City / Area" required>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="completeSignup()">
+                        <i class="fas fa-rocket"></i> Get Started
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboardContainer" class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>Vyapar Setu</span>
+                </div>
+                <button class="toggle-sidebar" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="showPage('dashboard')">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="showPage('orders')">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </button>
+                <button class="nav-item" onclick="showPage('products')">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </button>
+                <button class="nav-item" onclick="showPage('payments')">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Payments</span>
+                </button>
+                <button class="nav-item" onclick="showPage('insights')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Insights</span>
+                </button>
+                <button class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <button class="nav-item" onclick="logout()" style="margin-top: auto; border-top: 1px solid #E0E0E0; padding-top: 20px;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="welcome-msg">
+                    Welcome back, <span id="shopNameDisplay">My Shop</span> 👋
+                </div>
+                <div class="topbar-actions">
+                    <button class="notification-bell" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-section active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-value">₹12,450</div>
+                        <div class="stat-label">Today's Sales</div>
+                        <span class="stat-change positive">+12.5%</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-value">28</div>
+                        <div class="stat-label">Total Orders</div>
+                        <span class="stat-change positive">+8.2%</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Pending Orders</div>
+                        <span class="stat-change negative">-2.1%</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Low Stock Alert</div>
+                        <span class="stat-change negative">+1 item</span>
+                    </div>
+                </div>
+
+                <!-- Recent Orders Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Orders</h3>
+                        <button class="btn btn-primary btn-sm" onclick="showPage('orders')">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD001</td>
+                                <td>Rahul Sharma</td>
+                                <td>Wheat Flour 5kg</td>
+                                <td>₹250</td>
+                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD002</td>
+                                <td>Priya Patel</td>
+                                <td>Rice 10kg</td>
+                                <td>₹450</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD003</td>
+                                <td>Amit Kumar</td>
+                                <td>Cooking Oil 2L</td>
+                                <td>₹180</td>
+                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="stats-grid" style="margin-top: 30px;">
+                    <button class="stat-card" style="cursor: pointer;" onclick="showAddProductModal()">
+                        <div class="stat-icon" style="background: rgba(76, 175, 80, 0.1); color: var(--success);">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="stat-label" style="font-size: 1.1rem; font-weight: 600;">Quick Add Product</div>
+                    </button>
+                    
+                    <button class="stat-card" style="cursor: pointer;" onclick="showPage('orders')">
+                        <div class="stat-icon" style="background: rgba(33, 150, 243, 0.1); color: #2196F3;">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <div class="stat-label" style="font-size: 1.1rem; font-weight: 600;">Manage Orders</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div id="ordersPage" class="page-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">All Orders</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search orders..." onkeyup="searchOrders(this.value)">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td>#ORD001</td>
+                                <td>Rahul Sharma</td>
+                                <td>Wheat Flour 5kg</td>
+                                <td>2</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('ORD001', 'confirmed')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('ORD001', 'cancelled')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD002</td>
+                                <td>Priya Patel</td>
+                                <td>Rice 10kg</td>
+                                <td>1</td>
+                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('ORD002', 'delivered')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD003</td>
+                                <td>Amit Kumar</td>
+                                <td>Cooking Oil 2L</td>
+                                <td>3</td>
+                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <i class="fas fa-check-double"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div id="productsPage" class="page-section">
+                <div class="product-form">
+                    <h3 style="margin-bottom: 20px;">Add New Product</h3>
+                    <form onsubmit="addProduct(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" id="productName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productPrice">Price (₹)</label>
+                                <input type="number" id="productPrice" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productCategory">Category</label>
+                                <select id="productCategory" class="form-control" required>
+                                    <option value="">Select Category</option>
+                                    <option value="groceries">Groceries</option>
+                                    <option value="dairy">Dairy</option>
+                                    <option value="vegetables">Vegetables</option>
+                                    <option value="fruits">Fruits</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productStock">Stock Quantity</label>
+                                <input type="number" id="productStock" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Product Image</label>
+                            <div class="file-upload">
+                                <input type="file" id="productImage" accept="image/*">
+                                <label for="productImage" class="file-upload-label">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--primary-color);"></i>
+                                    <span>Click to upload image</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Product List</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search products..." onkeyup="searchProducts(this.value)">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr>
+                                <td>Wheat Flour 5kg</td>
+                                <td>Groceries</td>
+                                <td>₹250</td>
+                                <td>15</td>
+                                <td><span class="status-badge status-confirmed">In Stock</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm" onclick="editProduct('1')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('1')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rice 10kg</td>
+                                <td>Groceries</td>
+                                <td>₹450</td>
+                                <td>8</td>
+                                <td><span class="status-badge status-confirmed">In Stock</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm" onclick="editProduct('2')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('2')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Cooking Oil 2L</td>
+                                <td>Groceries</td>
+                                <td>₹180</td>
+                                <td>3</td>
+                                <td><span class="status-badge status-pending">Low Stock</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm" onclick="editProduct('3')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('3')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payments Page -->
+            <div id="paymentsPage" class="page-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-value">₹45,680</div>
+                        <div class="stat-label">Total Earnings</div>
+                        <span class="stat-change positive">This Month</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-value">₹12,450</div>
+                        <div class="stat-label">Pending Payments</div>
+                        <span class="stat-change negative">3 Orders</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Payment History</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-01-15</td>
+                                <td>#ORD001</td>
+                                <td>Rahul Sharma</td>
+                                <td>₹250</td>
+                                <td>Cash</td>
+                                <td><span class="status-badge status-delivered">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15</td>
+                                <td>#ORD002</td>
+                                <td>Priya Patel</td>
+                                <td>₹450</td>
+                                <td>UPI</td>
+                                <td><span class="status-badge status-delivered">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-14</td>
+                                <td>#ORD003</td>
+                                <td>Amit Kumar</td>
+                                <td>₹540</td>
+                                <td>Cash</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Insights Page -->
+            <div id="insightsPage" class="page-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="table-title">Sales Overview</h3>
+                        <div class="chart-tabs">
+                            <button class="chart-tab active" onclick="updateChart('daily')">Daily</button>
+                            <button class="chart-tab" onclick="updateChart('weekly')">Weekly</button>
+                            <button class="chart-tab" onclick="updateChart('monthly')">Monthly</button>
+                        </div>
+                    </div>
+                    <canvas id="salesChart" width="400" height="150"></canvas>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-value">Wheat Flour</div>
+                        <div class="stat-label">Most Selling Product</div>
+                        <span class="stat-change positive">45 units sold</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Total Customers</div>
+                        <span class="stat-change positive">+12 this week</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="page-section">
+                <div class="settings-section">
+                    <h3 style="margin-bottom: 20px;">Shop Information</h3>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Shop Name</h4>
+                            <p id="settingsShopName">My Shop</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="editShopInfo()">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Mobile Number</h4>
+                            <p id="settingsMobile">+91 98765 43210</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="editMobile()">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Location</h4>
+                            <p id="settingsLocation">Mumbai, Maharashtra</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="editLocation()">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 style="margin-bottom: 20px;">Notifications</h3>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Order Notifications</h4>
+                            <p>Get notified when new orders arrive</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Low Stock Alerts</h4>
+                            <p>Alert when products are running low</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Daily Sales Report</h4>
+                            <p>Receive daily sales summary</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 style="margin-bottom: 20px;">Account</h3>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Export Data</h4>
+                            <p>Download your sales and order data</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h4>Delete Account</h4>
+                            <p>Permanently delete your account</p>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAccount()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="showAddProductModal()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
